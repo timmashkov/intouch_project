@@ -16,6 +16,8 @@ class AuthConfig(BaseSettings):
     def db_url(self):
         return f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASS}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
 
+    SECRET: str
+
     class Config:
         env_file = ".env"
 
