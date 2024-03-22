@@ -17,7 +17,7 @@ class AuthConfig(BaseSettings):
         return f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASS}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
 
     class Config:
-        env_file = '.env'
+        env_file = ".env"
 
 
 base_config = AuthConfig()
