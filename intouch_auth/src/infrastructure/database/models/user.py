@@ -3,7 +3,7 @@ from datetime import datetime
 from sqlalchemy import String, Text, Boolean, func, Integer
 from sqlalchemy.orm import Mapped, mapped_column
 
-from intouch_auth.src.infrastructure.database.models.base import Base
+from infrastructure.database.models.base import Base
 
 
 class User(Base):
