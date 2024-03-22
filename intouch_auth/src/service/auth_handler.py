@@ -30,7 +30,7 @@ class AuthHandler:
     async def verify_password(
         self, password: str, salt: str, encoded_pass: str
     ) -> bool:
-        hashed_password = self.encode_pass(password=password, salt=salt)
+        hashed_password = await self.encode_pass(password=password, salt=salt)
         return hashed_password == encoded_pass
 
     async def encode_token(self, user_id: UUID) -> str:

@@ -12,6 +12,7 @@ from domain.user.schema import (
 )
 from infrastructure.database.models import User
 from infrastructure.exceptions.user_exceptions import UserNotFound, UserAlreadyExist
+from service.auth_handler import AuthHandler
 
 
 class UserShowService:
@@ -37,13 +38,25 @@ class UserShowService:
 
 class UserDataManagerService:
     def __init__(
-        self, repository: UserDataManagerRepository = Depends(UserDataManagerRepository)
-    ):
+        self,
+        repository: UserDataManagerRepository = Depends(UserDataManagerRepository),
+        auth: AuthHandler = Depends(AuthHandler),
+    ) -> None:
         self.repository = repository
+        self.auth = auth
 
     async def register_user(self, cmd: CreateUser) -> UserReturnData:
         try:
-            answer = await self.repository.create_user(cmd=cmd)
+            salted_pass = await self.auth.encode_pass(cmd.password, cmd.login)
+            answer = await self.repository.create_user(
+                cmd=CreateUser(
+                    login=cmd.login,
+                    password=salted_pass,
+                    email=cmd.email,
+                    phone_number=cmd.phone_number,
+                    age=cmd.age,
+                )
+            )
             return answer
         except (UniqueViolationError, IntegrityError):
             raise UserAlreadyExist

@@ -13,7 +13,6 @@ class GetUserByLogin(BaseModel):
 
 
 class UpdateUser(GetUserByLogin):
-    password: str
     email: EmailStr
     age: int
     phone_number: str = Field(examples=["89986661488", "+79986661488"])
@@ -34,7 +33,7 @@ class UpdateUser(GetUserByLogin):
 
 
 class CreateUser(UpdateUser):
-    pass
+    password: str
 
 
 class UserReturnData(GetUserById, GetUserByLogin):
@@ -43,3 +42,8 @@ class UserReturnData(GetUserById, GetUserByLogin):
     phone_number: str = Field(examples=["89986661488", "+79986661488"])
     is_verified: bool
     registered_at: datetime
+
+
+class UserSecretData(GetUserById, GetUserByLogin):
+    password: str
+    email: EmailStr

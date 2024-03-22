@@ -8,6 +8,7 @@ from domain.user.schema import (
     GetUserByLogin,
     CreateUser,
     UpdateUser,
+    UserSecretData,
 )
 from infrastructure.database.models import User
 from infrastructure.database.session import vortex
@@ -32,6 +33,30 @@ class UserShowRepository:
 
     async def get_user_by_login(self, cmd: GetUserByLogin) -> UserReturnData | None:
         stmt = select(self.model).where(self.model.login == cmd.login)
+        answer = await self.session.execute(stmt)
+        result = answer.scalar_one_or_none()
+        return result
+
+    async def get_user_secret(self, cmd: GetUserByLogin) -> UserSecretData | None:
+        """
+        Запрос для AuthService
+        :param cmd:
+        :return:
+        """
+        stmt = select(
+            self.model.id, self.model.login, self.model.password, self.model.email
+        ).where(self.model.login == cmd.login)
+        answer = await self.session.execute(stmt)
+        result = answer.scalar_one_or_none()
+        return result
+
+    async def get_user_token(self, cmd: GetUserById) -> str:
+        """
+        Запрос для AuthService
+        :param cmd:
+        :return:
+        """
+        stmt = select(self.model.token).where(self.model.id == cmd.id)
         answer = await self.session.execute(stmt)
         result = answer.scalar_one_or_none()
         return result
