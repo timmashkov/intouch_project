@@ -2,7 +2,13 @@ from fastapi import Depends
 from sqlalchemy import select, insert, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from domain.user.schema import GetUserById, UserReturnData, GetUserByLogin, CreateUser
+from domain.user.schema import (
+    GetUserById,
+    UserReturnData,
+    GetUserByLogin,
+    CreateUser,
+    UpdateUser,
+)
 from infrastructure.database.models import User
 from infrastructure.database.session import vortex
 
@@ -56,7 +62,7 @@ class UserDataManagerRepository:
         return result
 
     async def update_user(
-        self, cmd: CreateUser, model_id: GetUserById
+        self, cmd: UpdateUser, model_id: GetUserById
     ) -> UserReturnData | None:
         stmt = (
             update(self.model)
