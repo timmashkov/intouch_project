@@ -55,3 +55,7 @@ class UserLogin(GetUserByLogin):
 
 class UserJwtToken(GetUserById):
     token: str
+
+
+class UserAccessToken(BaseModel):
+    access_token: str

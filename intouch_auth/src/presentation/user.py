@@ -1,6 +1,7 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, Security
+from fastapi.security import HTTPAuthorizationCredentials
 
 from domain.user.schema import (
     UserReturnData,
@@ -8,14 +9,17 @@ from domain.user.schema import (
     GetUserByLogin,
     CreateUser,
     UpdateUser,
+    UserLogin,
+    UserJwtToken,
 )
 from infrastructure.database.models import User
+from infrastructure.utils.auth_helper import jwt_header
+from service.auth_service import AuthService
 from service.user_service import UserShowService, UserDataManagerService
 
 user_router = APIRouter(prefix="/user")
 
 
-# get endpoints
 @user_router.get("/all", response_model=list[UserReturnData])
 async def show_all_users(
     repository: UserShowService = Depends(UserShowService),
@@ -30,16 +34,15 @@ async def show_user_by_id(
     return await repository.find_user_by_id(cmd=GetUserById(id=user_id))
 
 
-@user_router.get("/{login}", response_model=UserReturnData)
+@user_router.get("/search/{login}", response_model=UserReturnData)
 async def show_user_by_login(
     login: str, repository: UserShowService = Depends(UserShowService)
 ) -> UserReturnData:
     return await repository.find_user_by_login(cmd=GetUserByLogin(login=login))
 
 
-# data manager endpoints
 @user_router.post(
-    "/", response_model=UserReturnData, status_code=status.HTTP_201_CREATED
+    "/register", response_model=UserReturnData, status_code=status.HTTP_201_CREATED
 )
 async def registration(
     cmd: CreateUser,
@@ -62,3 +65,37 @@ async def del_user(
     user_id: UUID, repository: UserDataManagerService = Depends(UserDataManagerService)
 ) -> UserReturnData:
     return await repository.drop_user(model_id=GetUserById(id=user_id))
+
+
+@user_router.post("/login", response_model=None)
+async def login_user(
+    cmd: UserLogin, repository: AuthService = Depends(AuthService)
+) -> dict[str, str]:
+    return await repository.login(cmd=cmd)
+
+
+@user_router.post("/logout", response_model=UserJwtToken)
+async def logout_user(
+    credentials: HTTPAuthorizationCredentials = Security(jwt_header),
+    repository: AuthService = Depends(AuthService),
+) -> UserJwtToken:
+    token = credentials.credentials
+    return await repository.logout(refresh_token=token)
+
+
+@user_router.get("/refresh_token", response_model=UserJwtToken)
+async def refresh_user_token(
+    repository: AuthService = Depends(AuthService),
+    credentials: HTTPAuthorizationCredentials = Security(jwt_header),
+) -> UserJwtToken:
+    token = credentials.credentials
+    return await repository.refresh_token(refresh_token=token)
+
+
+@user_router.get("/is_auth", response_model=UserJwtToken)
+async def is_auth(
+    repository: AuthService = Depends(AuthService),
+    credentials: HTTPAuthorizationCredentials = Security(jwt_header),
+) -> UserJwtToken:
+    token = credentials.credentials
+    return await repository.check_auth(refresh_token=token)

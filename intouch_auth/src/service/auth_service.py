@@ -3,7 +3,7 @@ from typing import Any
 from fastapi import Depends
 
 from domain.user.repository import UserDataManagerRepository, UserShowRepository
-from domain.user.schema import GetUserByLogin, UserLogin, UserJwtToken, GetUserById
+from domain.user.schema import UserLogin, UserJwtToken, GetUserById
 from infrastructure.exceptions.user_exceptions import (
     UserNotFound,
     WrongPassword,
@@ -57,11 +57,12 @@ class AuthService:
             return answer
         raise Unauthorized
 
-    async def check_auth(self, refresh_token: str):
+    async def check_auth(self, refresh_token: str) -> UserJwtToken:
         user_id = await self.auth_repo.decode_token(token=refresh_token)
         exist_token = await self.show_repo.get_user_token(
             cmd=GetUserById(id=await convert_to_uuid(user_id))
         )
+        print(refresh_token, exist_token, sep="\n")
         if not exist_token:
             raise Unauthorized
         if exist_token == refresh_token:
@@ -73,6 +74,7 @@ class AuthService:
         exist_token = await self.show_repo.get_user_token(
             cmd=GetUserById(id=await convert_to_uuid(user_id))
         )
+        print(refresh_token, exist_token, sep="\n")
         if not exist_token:
             raise Unauthorized
         if exist_token == refresh_token:

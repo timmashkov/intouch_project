@@ -49,7 +49,7 @@ class UserShowRepository:
             self.model.id, self.model.login, self.model.password, self.model.email
         ).where(self.model.login == cmd.login)
         answer = await self.session.execute(stmt)
-        result = answer.scalar_one_or_none()
+        result = answer.mappings().first()
         return result
 
     async def get_user_token(self, cmd: GetUserById) -> str:
@@ -60,8 +60,8 @@ class UserShowRepository:
         """
         stmt = select(self.model.token).where(self.model.id == cmd.id)
         answer = await self.session.execute(stmt)
-        result = answer.scalar_one_or_none()
-        return result
+        result = answer.mappings().first()
+        return result["token"]
 
 
 class UserDataManagerRepository:

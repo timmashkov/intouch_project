@@ -59,7 +59,7 @@ class AuthHandler:
         payload = {
             "expiration": int(datetime.now().timestamp() + expiration),
             "iat": int(datetime.now().timestamp()),
-            "scope": "access_token",
+            "scope": "refresh_token",
             "sub": json.dumps(user_id, default=str),
         }
         return jwt.encode(payload, self.secret, algorithm="HS256")
