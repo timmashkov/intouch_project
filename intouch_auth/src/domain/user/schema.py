@@ -5,7 +5,7 @@ from pydantic import BaseModel, EmailStr, Field, field_validator
 
 
 class GetUserById(BaseModel):
-    id: UUID
+    id: UUID | str
 
 
 class GetUserByLogin(BaseModel):
@@ -47,3 +47,11 @@ class UserReturnData(GetUserById, GetUserByLogin):
 class UserSecretData(GetUserById, GetUserByLogin):
     password: str
     email: EmailStr
+
+
+class UserLogin(GetUserByLogin):
+    password: str
+
+
+class UserJwtToken(GetUserById):
+    token: str

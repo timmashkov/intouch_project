@@ -54,7 +54,7 @@ class AuthHandler:
         except jwt.InvalidTokenError:
             raise InvalidToken
 
-    async def encode_refresh_token(self, user_id: UUID) -> str:
+    async def encode_refresh_token(self, user_id: UUID | str) -> str:
         expiration = 3600
         payload = {
             "expiration": int(datetime.now().timestamp() + expiration),
@@ -70,7 +70,7 @@ class AuthHandler:
             return payload["sub"]
         raise InvalidScopeToken
 
-    async def refresh_token(self, refresh_token) -> dict[str, str]:
+    async def refresh_token(self, refresh_token: str) -> dict[str, str]:
         try:
             payload = jwt.decode(refresh_token, self.secret, algorithms=["HS256"])
             if payload["scope"] == "refresh_token":

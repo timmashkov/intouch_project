@@ -11,3 +11,13 @@ class UserNotFound(BaseAPIException):
 class UserAlreadyExist(BaseAPIException):
     status_code = status.HTTP_400_BAD_REQUEST
     message = "User already exist"
+
+
+class WrongPassword(BaseAPIException):
+    status_code = status.HTTP_403_FORBIDDEN
+    message = "Wrond password"
+
+
+class Unauthorized(BaseAPIException):
+    status_code = status.HTTP_401_UNAUTHORIZED
+    message = "Unauthorized"

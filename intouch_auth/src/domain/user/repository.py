@@ -9,6 +9,8 @@ from domain.user.schema import (
     CreateUser,
     UpdateUser,
     UserSecretData,
+    UserJwtToken,
+    UserLogin,
 )
 from infrastructure.database.models import User
 from infrastructure.database.session import vortex
@@ -37,7 +39,7 @@ class UserShowRepository:
         result = answer.scalar_one_or_none()
         return result
 
-    async def get_user_secret(self, cmd: GetUserByLogin) -> UserSecretData | None:
+    async def get_user_secret(self, cmd: UserLogin) -> UserSecretData | None:
         """
         Запрос для AuthService
         :param cmd:
@@ -121,6 +123,40 @@ class UserDataManagerRepository:
                 self.model.is_verified,
                 self.model.registered_at,
             )
+        )
+        answer = await self.session.execute(stmt)
+        await self.session.commit()
+        result = answer.mappings().first()
+        return result
+
+    async def update_token(self, cmd: UserJwtToken) -> UserJwtToken | None:
+        """
+        Запрос для AuthService
+        :param cmd:
+        :return:
+        """
+        stmt = (
+            update(self.model)
+            .values(token=cmd.token)
+            .where(self.model.id == cmd.id)
+            .returning(self.model.id, self.model.token)
+        )
+        answer = await self.session.execute(stmt)
+        await self.session.commit()
+        result = answer.mappings().first()
+        return result
+
+    async def delete_token(self, cmd: GetUserById) -> UserJwtToken | None:
+        """
+        Запрос для AuthService
+        :param cmd:
+        :return:
+        """
+        stmt = (
+            update(self.model)
+            .values(token="")
+            .where(self.model.id == cmd.id)
+            .returning(self.model.id, self.model.token)
         )
         answer = await self.session.execute(stmt)
         await self.session.commit()
