@@ -12,10 +12,10 @@ class AlchemyConnector:
             bind=self.engine, autoflush=False, autocommit=False, expire_on_commit=False
         )
 
-    async def session_gate(self) -> AsyncGenerator:
+    async def enter_session(self) -> AsyncGenerator:
         async with self.session_maker() as session:
             yield session
             await session.close()
 
 
-tornado = AlchemyConnector(url=main_config.db_url)
+tempest = AlchemyConnector(url=main_config.db_url)
