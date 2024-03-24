@@ -25,14 +25,14 @@ async def show_profiles(
     return await repository.get_profiles()
 
 
-@profile_router.get("/by_id/{profile_id}", response_model=list[ProfileReturn])
+@profile_router.get("/by_id/{profile_id}", response_model=ProfileReturn)
 async def show_profile(
     profile_id: UUID, repository: ProfileShowService = Depends(ProfileShowService)
 ) -> ProfileReturn:
     return await repository.get_profile_by_id(cmd=GetProfileById(id=profile_id))
 
 
-@profile_router.get("/by_first_name/{first_name}", response_model=list[ProfileReturn])
+@profile_router.get("/by_first_name/{first_name}", response_model=ProfileReturn)
 async def show_profile_by_first(
     first_name: str, repository: ProfileShowService = Depends(ProfileShowService)
 ) -> ProfileReturn:
@@ -41,7 +41,7 @@ async def show_profile_by_first(
     )
 
 
-@profile_router.get("/by_last_name/{last_name}", response_model=list[ProfileReturn])
+@profile_router.get("/by_last_name/{last_name}", response_model=ProfileReturn)
 async def show_profile_by_last(
     last_name: str, repository: ProfileShowService = Depends(ProfileShowService)
 ) -> ProfileReturn:

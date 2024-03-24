@@ -33,7 +33,7 @@ class ProfileShowRepository:
     async def get_profile_by_first_name(
         self, cmd: GetProfileByFirstName
     ) -> ProfileReturn | None:
-        stmt = select(self.model).where(self.model.id == cmd.first_name)
+        stmt = select(self.model).where(self.model.first_name == cmd.first_name)
         answer = await self.session.execute(stmt)
         result = answer.scalar_one_or_none()
         return result
@@ -41,7 +41,7 @@ class ProfileShowRepository:
     async def get_profile_by_last_name(
         self, cmd: GetProfileByLastName
     ) -> ProfileReturn | None:
-        stmt = select(self.model).where(self.model.id == cmd.last_name)
+        stmt = select(self.model).where(self.model.last_name == cmd.last_name)
         answer = await self.session.execute(stmt)
         result = answer.scalar_one_or_none()
         return result
