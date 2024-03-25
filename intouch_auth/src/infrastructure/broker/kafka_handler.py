@@ -3,6 +3,8 @@ from typing import Any
 
 from aiokafka import AIOKafkaProducer, AIOKafkaConsumer
 
+from infrastructure.settings.config import base_config
+
 
 class DataHandler:
     @staticmethod
@@ -18,7 +20,6 @@ class KafkaProducer(DataHandler):
     def __init__(self, bootstrap_servers: str) -> None:
         self.bootstrap_servers = bootstrap_servers
         self.producer = AIOKafkaProducer(bootstrap_servers=self.bootstrap_servers)
-        self.consumer = AIOKafkaConsumer(bootstrap_servers=self.bootstrap_servers)
 
     async def connect_producer(self) -> None:
         print(f"Kafka producer on {self.bootstrap_servers} is up")
@@ -35,9 +36,8 @@ class KafkaProducer(DataHandler):
 
 
 class KafkaConsumer(DataHandler):
-    def __init__(self, bootstrap_servers: str, group_id: str) -> None:
+    def __init__(self, bootstrap_servers: str) -> None:
         self.bootstrap_servers = bootstrap_servers
-        self.group_id = group_id
         self.consumer = AIOKafkaConsumer(bootstrap_servers=self.bootstrap_servers)
 
     async def connect_consumer(self) -> None:
@@ -55,13 +55,17 @@ class KafkaConsumer(DataHandler):
         async for message in self.consumer:
             print(
                 "consumed: ",
-                message.topic,
-                message.partition,
-                message.offset,
-                message.key,
-                message.value,
-                message.timestamp,
+                await self.deserialize_data(message.topic),
+                await self.deserialize_data(message.partition),
+                await self.deserialize_data(message.offset),
+                await self.deserialize_data(message.key),
+                await self.deserialize_data(message.value),
+                await self.deserialize_data(message.timestamp),
             )
             yield await self.deserialize_data(message.key), await self.deserialize_data(
                 message.value
             )
+
+
+kafka_producer = KafkaProducer(base_config.KAFKA_BOOTSTRAP_SERVERS)
+kafka_consumer = KafkaConsumer(base_config.KAFKA_BOOTSTRAP_SERVERS)

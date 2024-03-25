@@ -19,6 +19,9 @@ class AuthConfig(BaseSettings):
     SECRET: str
     X_API_TOKEN: str
 
+    KAFKA_BOOTSTRAP_SERVERS: str
+    TOPIC: str
+
     class Config:
         env_file = ".env"
 
