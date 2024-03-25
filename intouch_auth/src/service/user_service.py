@@ -10,6 +10,7 @@ from domain.user.schema import (
     CreateUser,
     UpdateUser,
 )
+from infrastructure.broker.kafka_handler import kafka_producer
 from infrastructure.database.models import User
 from infrastructure.exceptions.user_exceptions import UserNotFound, UserAlreadyExist
 from service.auth_handler import AuthHandler
@@ -57,6 +58,7 @@ class UserDataManagerService:
                     age=cmd.age,
                 )
             )
+            await kafka_producer.publish_message("registration", answer._asdict())
             return answer
         except (UniqueViolationError, IntegrityError):
             raise UserAlreadyExist

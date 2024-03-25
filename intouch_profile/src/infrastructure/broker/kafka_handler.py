@@ -3,10 +3,10 @@ from typing import Any
 
 from aiokafka import AIOKafkaProducer, AIOKafkaConsumer
 
-from infrastructure.settings.config import base_config
+from intouch_profile.src.infrastructure.settings import main_config
 
 
-class DataHandler:
+class DataDumper:
     @staticmethod
     async def serialize_data(data: Any) -> bytes:
         return json.dumps(data).encode("utf-8")
@@ -16,7 +16,7 @@ class DataHandler:
         return json.loads(data)
 
 
-class KafkaProducer(DataHandler):
+class AIOProducer(DataDumper):
     def __init__(self, bootstrap_servers: str, topics: list) -> None:
         self.bootstrap_servers = bootstrap_servers
         self.topics = topics
@@ -39,7 +39,7 @@ class KafkaProducer(DataHandler):
         raise NameError("Wrong topic name")
 
 
-class KafkaConsumer(DataHandler):
+class AIOConsumer(DataDumper):
     def __init__(self, bootstrap_servers: str, topics: list) -> None:
         self.bootstrap_servers = bootstrap_servers
         self.topics = topics
@@ -73,7 +73,7 @@ class KafkaConsumer(DataHandler):
             )
 
 
-kafka_producer = KafkaProducer(bootstrap_servers=base_config.kafka_url,
-                               topics=base_config.topics)
-kafka_consumer = KafkaConsumer(bootstrap_servers=base_config.kafka_url,
-                               topics=base_config.topics)
+kafka_producer = AIOProducer(bootstrap_servers=main_config.kafka_url,
+                             topics=main_config.topics)
+kafka_consumer = AIOConsumer(bootstrap_servers=main_config.kafka_url,
+                             topics=main_config.topics)

@@ -1,5 +1,6 @@
 from fastapi import Depends
 
+from intouch_profile.src.infrastructure.broker.kafka_handler import kafka_consumer
 from intouch_profile.src.domain.profile.schema import (
     ProfileReturn,
     GetProfileById,
@@ -52,6 +53,7 @@ class ProfileDataManagerService:
         self.repository = repository
 
     async def create_profile(self, cmd: CreateUpdateProfile) -> ProfileReturn:
+        await kafka_consumer.subscribe_to_topic("registration")
         answer = await self.repository.create_profile(cmd=cmd)
         return answer
 
