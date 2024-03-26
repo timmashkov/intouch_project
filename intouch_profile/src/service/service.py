@@ -52,10 +52,11 @@ class ProfileDataManagerService:
     ):
         self.repository = repository
 
-    async def create_profile(self, cmd: CreateUpdateProfile) -> ProfileReturn:
-        await kafka_consumer.subscribe_to_topic("registration")
-        answer = await self.repository.create_profile(cmd=cmd)
-        return answer
+    async def create_profile(self):
+        # await kafka_consumer.subscribe_to_topic()
+        async for key, value in kafka_consumer.poll_messages():
+            await self.repository.create_profile(cmd=value)
+            print("Success")
 
     async def update_profile(
         self, cmd: CreateUpdateProfile, data: GetProfileById

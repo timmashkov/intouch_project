@@ -32,11 +32,10 @@ class KafkaProducer(DataHandler):
         await self.producer.stop()
 
     async def publish_message(self, topic: str, message: Any):
-        if topic in self.topics:
-            await self.producer.send_and_wait(
-                topic=topic, value=await self.serialize_data(message)
-            )
-        raise NameError("Wrong topic name")
+        await self.producer.send_and_wait(
+            topic=topic, value=await self.serialize_data(message)
+        )
+        print(f"{message} has been sent")
 
 
 class KafkaConsumer(DataHandler):
@@ -73,7 +72,9 @@ class KafkaConsumer(DataHandler):
             )
 
 
-kafka_producer = KafkaProducer(bootstrap_servers=base_config.kafka_url,
-                               topics=base_config.topics)
-kafka_consumer = KafkaConsumer(bootstrap_servers=base_config.kafka_url,
-                               topics=base_config.topics)
+kafka_producer = KafkaProducer(
+    bootstrap_servers=base_config.kafka_url, topics=base_config.topics
+)
+kafka_consumer = KafkaConsumer(
+    bootstrap_servers=base_config.kafka_url, topics=base_config.topics
+)

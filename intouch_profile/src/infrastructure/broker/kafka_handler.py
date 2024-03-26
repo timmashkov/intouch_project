@@ -46,7 +46,12 @@ class AIOConsumer(DataDumper):
         self.consumer = None
 
     async def connect_consumer(self) -> None:
-        self.consumer = AIOKafkaConsumer(bootstrap_servers=self.bootstrap_servers)
+        self.consumer = AIOKafkaConsumer(
+            main_config.TOPIC_REG,
+            bootstrap_servers=self.bootstrap_servers,
+            group_id="my_consumer_group",
+            auto_offset_reset="earliest",
+        )
         print(f"Kafka consumer on {self.bootstrap_servers} is up")
         await self.consumer.start()
 
@@ -59,21 +64,12 @@ class AIOConsumer(DataDumper):
 
     async def poll_messages(self):
         async for message in self.consumer:
-            print(
-                "consumed: ",
-                await self.deserialize_data(message.topic),
-                await self.deserialize_data(message.partition),
-                await self.deserialize_data(message.offset),
-                await self.deserialize_data(message.key),
-                await self.deserialize_data(message.value),
-                await self.deserialize_data(message.timestamp),
-            )
-            yield await self.deserialize_data(message.key), await self.deserialize_data(
-                message.value
-            )
+            print(f"consumed:{await self.deserialize_data(message.value)}")
 
 
-kafka_producer = AIOProducer(bootstrap_servers=main_config.kafka_url,
-                             topics=main_config.topics)
-kafka_consumer = AIOConsumer(bootstrap_servers=main_config.kafka_url,
-                             topics=main_config.topics)
+kafka_producer = AIOProducer(
+    bootstrap_servers=main_config.kafka_url, topics=main_config.topics
+)
+kafka_consumer = AIOConsumer(
+    bootstrap_servers=main_config.kafka_url, topics=main_config.topics
+)

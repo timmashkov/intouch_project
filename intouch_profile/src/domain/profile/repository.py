@@ -1,3 +1,5 @@
+from typing import Any
+
 from fastapi import Depends
 from sqlalchemy import select, insert, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -52,7 +54,9 @@ class ProfileDataManagerRepository:
         self.session = session
         self.model = Profile
 
-    async def create_profile(self, cmd: CreateUpdateProfile) -> ProfileReturn | None:
+    async def create_profile(
+        self, cmd: CreateUpdateProfile | Any
+    ) -> ProfileReturn | None:
         stmt = (
             insert(self.model)
             .values(**cmd.model_dump())

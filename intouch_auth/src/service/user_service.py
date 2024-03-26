@@ -49,16 +49,15 @@ class UserDataManagerService:
     async def register_user(self, cmd: CreateUser) -> UserReturnData:
         try:
             salted_pass = await self.auth.encode_pass(cmd.password, cmd.login)
-            answer = await self.repository.create_user(
-                cmd=CreateUser(
-                    login=cmd.login,
-                    password=salted_pass,
-                    email=cmd.email,
-                    phone_number=cmd.phone_number,
-                    age=cmd.age,
-                )
+            data = CreateUser(
+                login=cmd.login,
+                password=salted_pass,
+                email=cmd.email,
+                phone_number=cmd.phone_number,
+                age=cmd.age,
             )
-            await kafka_producer.publish_message("registration", answer._asdict())
+            answer = await self.repository.create_user(cmd=data)
+            await kafka_producer.publish_message("registration", data.model_dump())
             return answer
         except (UniqueViolationError, IntegrityError):
             raise UserAlreadyExist
