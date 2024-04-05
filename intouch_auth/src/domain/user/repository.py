@@ -69,7 +69,7 @@ class UserDataManagerRepository:
         self.session = session
         self.model = User
 
-    async def create_user(self, cmd: CreateUser) -> UserReturnData | None:
+    async def create_user(self, cmd: CreateUser) -> UserReturnData | dict:
         stmt = (
             insert(self.model)
             .values(**cmd.model_dump())
@@ -85,8 +85,9 @@ class UserDataManagerRepository:
         )
         answer = await self.session.execute(stmt)
         await self.session.commit()
-        result = answer.mappings().first()
-        return result
+        result = answer.first()
+        print(result._asdict())
+        return result._asdict()
 
     async def update_user(
         self, cmd: UpdateUser, model_id: GetUserById

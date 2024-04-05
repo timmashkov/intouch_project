@@ -1,4 +1,5 @@
 import json
+import pickle
 from typing import Any
 
 from aiokafka import AIOKafkaProducer, AIOKafkaConsumer
@@ -9,11 +10,11 @@ from intouch_profile.src.infrastructure.settings import main_config
 class DataDumper:
     @staticmethod
     async def serialize_data(data: Any) -> bytes:
-        return json.dumps(data).encode("utf-8")
+        return pickle.dumps(data)
 
     @staticmethod
     async def deserialize_data(data: bytes) -> Any:
-        return json.loads(data)
+        return pickle.loads(data)
 
 
 class AIOProducer(DataDumper):

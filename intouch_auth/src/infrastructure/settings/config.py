@@ -6,6 +6,7 @@ load_dotenv()
 
 
 class AuthConfig(BaseSettings):
+    # Postgres config
     DB_HOST: str
     DB_PORT: int
     DB_NAME: str
@@ -16,9 +17,10 @@ class AuthConfig(BaseSettings):
     def db_url(self) -> str:
         return f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASS}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
 
+    # AUTH config
     SECRET: str
     X_API_TOKEN: str
-
+    # Kafka config
     KAFKA_HOST: str
     KAFKA_PORT: int
     TOPIC_REG: str
@@ -30,6 +32,16 @@ class AuthConfig(BaseSettings):
     @property
     def topics(self) -> list:
         return [self.TOPIC_REG]
+
+    # Rabbit config
+    RABBIT_NAME: str
+    RABBIT_PASS: str
+    RABBIT_HOST: str
+    RABBIT_PORT: int
+
+    @property
+    def rabbit_url(self) -> str:
+        return f"amqp://{self.RABBIT_NAME}:{self.RABBIT_PASS}@{self.RABBIT_HOST}:{self.RABBIT_PORT}/"
 
     class Config:
         env_file = ".env"

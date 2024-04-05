@@ -1,12 +1,16 @@
+from asyncpg import UniqueViolationError
 from fastapi import Depends
+from sqlalchemy.exc import IntegrityError
 
-from intouch_profile.src.infrastructure.broker.kafka_handler import kafka_consumer
+from infrastructure.exceptions.profile_exceptions import ProfileAlreadyExist
+from intouch_profile.src.infrastructure.broker.rabbit_handler import mq_handler, mq_rpc
 from intouch_profile.src.domain.profile.schema import (
     ProfileReturn,
     GetProfileById,
     GetProfileByFirstName,
     GetProfileByLastName,
-    CreateUpdateProfile,
+    CreateProfile,
+    UpdateProfile,
 )
 from intouch_profile.src.domain.profile.repository import (
     ProfileShowRepository,
@@ -52,14 +56,15 @@ class ProfileDataManagerService:
     ):
         self.repository = repository
 
-    async def create_profile(self):
-        # await kafka_consumer.subscribe_to_topic()
-        async for key, value in kafka_consumer.poll_messages():
-            await self.repository.create_profile(cmd=value)
-            print("Success")
+    async def create_profile(self, cmd: CreateProfile) -> ProfileReturn:
+        try:
+            answer = await self.repository.create_profile(cmd=cmd)
+            return answer
+        except (UniqueViolationError, IntegrityError):
+            raise ProfileAlreadyExist
 
     async def update_profile(
-        self, cmd: CreateUpdateProfile, data: GetProfileById
+        self, cmd: UpdateProfile, data: GetProfileById
     ) -> ProfileReturn:
         answer = await self.repository.update_profile(cmd=cmd, data=data)
         return answer

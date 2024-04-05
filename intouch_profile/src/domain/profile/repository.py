@@ -9,7 +9,8 @@ from intouch_profile.src.domain.profile.schema import (
     ProfileReturn,
     GetProfileByFirstName,
     GetProfileByLastName,
-    CreateUpdateProfile,
+    CreateProfile,
+    UpdateProfile,
 )
 from intouch_profile.src.infrastructure.database.models import Profile
 from intouch_profile.src.infrastructure.database.connector import tempest
@@ -54,9 +55,7 @@ class ProfileDataManagerRepository:
         self.session = session
         self.model = Profile
 
-    async def create_profile(
-        self, cmd: CreateUpdateProfile | Any
-    ) -> ProfileReturn | None:
+    async def create_profile(self, cmd: CreateProfile | Any) -> ProfileReturn | None:
         stmt = (
             insert(self.model)
             .values(**cmd.model_dump())
@@ -77,7 +76,7 @@ class ProfileDataManagerRepository:
         return result
 
     async def update_profile(
-        self, cmd: CreateUpdateProfile, data: GetProfileById
+        self, cmd: UpdateProfile, data: GetProfileById
     ) -> ProfileReturn | None:
         stmt = (
             update(self.model)

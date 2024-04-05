@@ -1,5 +1,7 @@
 import json
+import pickle
 from typing import Any
+from uuid import UUID
 
 from aiokafka import AIOKafkaProducer, AIOKafkaConsumer
 
@@ -9,11 +11,11 @@ from infrastructure.settings.config import base_config
 class DataHandler:
     @staticmethod
     async def serialize_data(data: Any) -> bytes:
-        return json.dumps(data).encode("utf-8")
+        return pickle.dumps(data)
 
     @staticmethod
     async def deserialize_data(data: bytes) -> Any:
-        return json.loads(data)
+        return pickle.loads(data)
 
 
 class KafkaProducer(DataHandler):

@@ -8,7 +8,8 @@ from intouch_profile.src.domain.profile.schema import (
     GetProfileById,
     GetProfileByFirstName,
     GetProfileByLastName,
-    CreateUpdateProfile,
+    CreateProfile,
+    UpdateProfile,
 )
 from intouch_profile.src.service.service import (
     ProfileShowService,
@@ -60,7 +61,7 @@ async def create_profile(
 
 @profile_router.patch("/upd/{profile_id}", response_model=ProfileReturn)
 async def upd_profile(
-    cmd: CreateUpdateProfile,
+    cmd: UpdateProfile,
     profile_id: UUID,
     repository: ProfileDataManagerService = Depends(ProfileDataManagerService),
 ) -> ProfileReturn:

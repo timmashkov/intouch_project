@@ -28,6 +28,15 @@ class ProfileConfig(BaseSettings):
     def topics(self) -> list:
         return [self.TOPIC_REG]
 
+    RABBIT_NAME: str
+    RABBIT_PASS: str
+    RABBIT_HOST: str
+    RABBIT_PORT: int
+
+    @property
+    def rabbit_url(self) -> str:
+        return f"amqp://{self.RABBIT_NAME}:{self.RABBIT_PASS}@{self.RABBIT_HOST}:{self.RABBIT_PORT}/"
+
     class Config:
         env_file = ".env"
 
