@@ -57,8 +57,11 @@ class UserDataManagerService:
                 age=cmd.age,
             )
             answer = await self.repository.create_user(cmd=data)
+            # sending User.id to rabbit
+            print(answer["id"])
+            await mq_handler.send_message("create_user", answer["id"])
+            # trigger for creation Profile table in another microservice
             # await mq_rpc.call("registration")
-            await mq_handler.send_message("registration", "hui sosi")
             return answer
         except (UniqueViolationError, IntegrityError):
             raise UserAlreadyExist

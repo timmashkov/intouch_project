@@ -23,11 +23,11 @@ class UpdateProfile(GetProfileByLastName, GetProfileByFirstName):
 
 
 class CreateProfile(UpdateProfile):
-    login: str
-    email: EmailStr
-    age: int
-    phone_number: str
-    registered_at: datetime | str
+    first_name: str = ""
+    last_name: str = ""
+    occupation: str | None
+    status: str | None
+    bio: str | None
     user_id: UUID | str
 
 

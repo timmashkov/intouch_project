@@ -53,14 +53,13 @@ class MessageQueue(BaseMQ):
         async with queue.iterator() as que_iter:
             async for message in que_iter:
                 await func(message)
+                await message.ack()
 
-    async def get_message(self, queue_name: str, no_ack: bool = True):
-        messages = []
+    async def get_message(self, queue_name: str, container: list, no_ack: bool = True):
 
         async def func(msg: AbstractIncomingMessage):
             data = self.deserialize_data(msg.body)
-            messages.append(data)
-            print(data)
+            container.append(data)
             return data
 
         queue = await self.channel.declare_queue(
@@ -68,8 +67,6 @@ class MessageQueue(BaseMQ):
             auto_delete=False,
         )
         await queue.consume(func, no_ack)
-        print(messages, "messages")
-        return messages
 
 
 class RPC(BaseMQ):

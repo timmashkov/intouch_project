@@ -1,8 +1,13 @@
+import pickle
+
 from asyncpg import UniqueViolationError
 from fastapi import Depends
 from sqlalchemy.exc import IntegrityError
 
-from infrastructure.exceptions.profile_exceptions import ProfileAlreadyExist
+from aio_pika.message import AbstractIncomingMessage
+from intouch_profile.src.infrastructure.exceptions.profile_exceptions import (
+    ProfileAlreadyExist,
+)
 from intouch_profile.src.infrastructure.broker.rabbit_handler import mq_handler, mq_rpc
 from intouch_profile.src.domain.profile.schema import (
     ProfileReturn,
@@ -56,9 +61,14 @@ class ProfileDataManagerService:
     ):
         self.repository = repository
 
-    async def create_profile(self, cmd: CreateProfile) -> ProfileReturn:
+    async def create_profile(self, message: AbstractIncomingMessage) -> ProfileReturn:
         try:
-            answer = await self.repository.create_profile(cmd=cmd)
+            answer = await self.repository.create_profile(
+                cmd=CreateProfile(
+                    first_name="", last_name="", user_id=pickle.loads(message.body)
+                )
+            )
+            print(answer)
             return answer
         except (UniqueViolationError, IntegrityError):
             raise ProfileAlreadyExist
@@ -72,3 +82,6 @@ class ProfileDataManagerService:
     async def delete_profile(self, cmd: GetProfileById) -> ProfileReturn:
         answer = await self.repository.delete_profile(cmd=cmd)
         return answer
+
+
+profile_data = ProfileDataManagerService()
