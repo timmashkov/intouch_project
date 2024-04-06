@@ -51,14 +51,6 @@ async def show_profile_by_last(
     )
 
 
-@profile_router.post("/create", response_model=ProfileReturn)
-async def create_profile(
-    # cmd: CreateUpdateProfile,
-    repository: ProfileDataManagerService = Depends(ProfileDataManagerService),
-) -> ProfileReturn:
-    return await repository.create_profile()
-
-
 @profile_router.patch("/upd/{profile_id}", response_model=ProfileReturn)
 async def upd_profile(
     cmd: UpdateProfile,

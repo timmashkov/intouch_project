@@ -82,6 +82,3 @@ class ProfileDataManagerService:
     async def delete_profile(self, cmd: GetProfileById) -> ProfileReturn:
         answer = await self.repository.delete_profile(cmd=cmd)
         return answer
-
-
-profile_data = ProfileDataManagerService()
