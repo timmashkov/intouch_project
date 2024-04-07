@@ -8,14 +8,17 @@ from intouch_profile.src.infrastructure.database.connector import tempest
 
 
 async def create_profile_hidden(message: AbstractIncomingMessage):
-    print(1)
+    data = dict(pickle.loads(message.body))
     async with tempest.engine.connect() as session:
         stmt = (
             insert(Profile)
             .values(
                 first_name="",
                 last_name="",
-                user_id=pickle.loads(message.body),
+                user_id=data["id"],
+                email=data["email"],
+                age=int(data["age"]),
+                phone_number=data["phone_number"],
                 occupation="",
                 status="",
                 bio="",
@@ -25,6 +28,9 @@ async def create_profile_hidden(message: AbstractIncomingMessage):
                 Profile.first_name,
                 Profile.last_name,
                 Profile.occupation,
+                Profile.email,
+                Profile.age,
+                Profile.phone_number,
                 Profile.bio,
                 Profile.status,
                 Profile.created_at,

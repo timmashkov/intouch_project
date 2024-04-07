@@ -33,7 +33,9 @@ def upgrade() -> None:
         sa.Column("phone_number", sa.String(length=11), nullable=False),
         sa.Column("user_id", sa.UUID(), nullable=False),
         sa.Column("is_active", sa.Boolean(), nullable=False),
-        sa.Column("created_at", sa.DateTime(), server_default=sa.text("now()"), nullable=False),
+        sa.Column(
+            "created_at", sa.DateTime(), server_default=sa.text("now()"), nullable=False
+        ),
         sa.Column("id", sa.UUID(), nullable=False),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("email"),
@@ -54,7 +56,9 @@ def upgrade() -> None:
             ["profile.id"],
         ),
         sa.PrimaryKeyConstraint("id"),
-        sa.UniqueConstraint("profile_id", "friend_id", name="idx_unique_profile_friend"),
+        sa.UniqueConstraint(
+            "profile_id", "friend_id", name="idx_unique_profile_friend"
+        ),
     )
     op.create_table(
         "post",
@@ -62,7 +66,9 @@ def upgrade() -> None:
         sa.Column("hashtag", sa.String(length=30), nullable=True),
         sa.Column("body", sa.Text(), nullable=True),
         sa.Column("likes", sa.Integer(), nullable=False),
-        sa.Column("written_at", sa.DateTime(), server_default=sa.text("now()"), nullable=False),
+        sa.Column(
+            "written_at", sa.DateTime(), server_default=sa.text("now()"), nullable=False
+        ),
         sa.Column("profile_id", sa.UUID(), nullable=False),
         sa.Column("id", sa.UUID(), nullable=False),
         sa.ForeignKeyConstraint(["profile_id"], ["profile.id"], ondelete="CASCADE"),

@@ -43,7 +43,4 @@ class Profile(Base):
         secondaryjoin="Profile.id==Friend.friend_id",
     )
 
-    posts: Mapped[list["Post"]] = relationship(
-        "Post",
-        back_populates="author"
-    )
+    posts: Mapped[list["Post"]] = relationship("Post", back_populates="author")

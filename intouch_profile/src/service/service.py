@@ -1,14 +1,10 @@
-import pickle
-
-from asyncpg import UniqueViolationError
 from fastapi import Depends
-from sqlalchemy.exc import IntegrityError
 
-from aio_pika.message import AbstractIncomingMessage
 from intouch_profile.src.infrastructure.exceptions.profile_exceptions import (
     ProfileAlreadyExist,
+    ProfileNotFound,
+    FriendNotFound,
 )
-from intouch_profile.src.infrastructure.broker.rabbit_handler import mq_handler, mq_rpc
 from intouch_profile.src.domain.profile.schema import (
     ProfileReturn,
     GetProfileById,
@@ -16,6 +12,7 @@ from intouch_profile.src.domain.profile.schema import (
     GetProfileByLastName,
     CreateProfile,
     UpdateProfile,
+    FriendSchema,
 )
 from intouch_profile.src.domain.profile.repository import (
     ProfileShowRepository,
@@ -37,19 +34,25 @@ class ProfileShowService:
 
     async def get_profile_by_id(self, cmd: GetProfileById) -> ProfileReturn:
         answer = await self.repository.get_profile_by_id(cmd=cmd)
-        return answer
+        if answer:
+            return answer
+        raise ProfileNotFound
 
     async def get_profile_by_first_name(
         self, cmd: GetProfileByFirstName
     ) -> ProfileReturn:
         answer = await self.repository.get_profile_by_first_name(cmd=cmd)
-        return answer
+        if answer:
+            return answer
+        raise ProfileNotFound
 
     async def get_profile_by_last_name(
         self, cmd: GetProfileByLastName
     ) -> ProfileReturn:
         answer = await self.repository.get_profile_by_last_name(cmd=cmd)
-        return answer
+        if answer:
+            return answer
+        raise ProfileNotFound
 
 
 class ProfileDataManagerService:
@@ -58,20 +61,32 @@ class ProfileDataManagerService:
         repository: ProfileDataManagerRepository = Depends(
             ProfileDataManagerRepository
         ),
+        get_data_repo: ProfileShowService = Depends(ProfileShowService),
     ):
         self.repository = repository
+        self.get_data_repo = get_data_repo
 
-    async def create_profile(self, message: AbstractIncomingMessage) -> ProfileReturn:
-        try:
-            answer = await self.repository.create_profile(
-                cmd=CreateProfile(
-                    first_name="", last_name="", user_id=pickle.loads(message.body)
-                )
-            )
-            print(answer)
-            return answer
-        except (UniqueViolationError, IntegrityError):
-            raise ProfileAlreadyExist
+    async def make_friend(self, cmd: FriendSchema) -> dict[str:str]:
+        if not await self.get_data_repo.get_profile_by_id(
+            cmd=GetProfileById(id=cmd.profile_id)
+        ):
+            raise ProfileNotFound
+        if not await self.get_data_repo.get_profile_by_id(
+            cmd=GetProfileById(id=cmd.friend_id)
+        ):
+            raise FriendNotFound
+        return await self.repository.add_friends(cmd=cmd)
+
+    async def unfriend(self, cmd: FriendSchema) -> dict[str:str]:
+        if not await self.get_data_repo.get_profile_by_id(
+            cmd=GetProfileById(id=cmd.profile_id)
+        ):
+            raise ProfileNotFound
+        if not await self.get_data_repo.get_profile_by_id(
+            cmd=GetProfileById(id=cmd.friend_id)
+        ):
+            raise FriendNotFound
+        return await self.repository.delete_friends(cmd=cmd)
 
     async def update_profile(
         self, cmd: UpdateProfile, data: GetProfileById

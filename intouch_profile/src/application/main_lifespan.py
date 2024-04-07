@@ -5,7 +5,6 @@ from fastapi import FastAPI
 from intouch_profile.src.infrastructure.database.db_helper import create_profile_hidden
 from intouch_profile.src.infrastructure.utils.data_catcher import catch_data
 from intouch_profile.src.infrastructure.broker.rabbit_handler import mq_handler, mq_rpc
-from intouch_profile.src.service.service import profile_data
 
 
 @asynccontextmanager

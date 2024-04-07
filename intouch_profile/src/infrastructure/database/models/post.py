@@ -17,9 +17,13 @@ class Post(Base):
     hashtag: Mapped[str] = mapped_column(String(30), unique=False, nullable=True)
     body: Mapped[str] = mapped_column(Text, unique=False, nullable=True)
     likes: Mapped[int] = mapped_column(Integer, default=0)
-    written_at: Mapped[datetime] = mapped_column(server_default=func.now(), default=datetime.now)
+    written_at: Mapped[datetime] = mapped_column(
+        server_default=func.now(), default=datetime.now
+    )
 
-    profile_id: Mapped[UUID] = mapped_column(ForeignKey("profile.id", ondelete="CASCADE"), unique=True, nullable=False)
+    profile_id: Mapped[UUID] = mapped_column(
+        ForeignKey("profile.id", ondelete="CASCADE"), unique=True, nullable=False
+    )
     author: Mapped["Profile"] = relationship(
         "Profile",
         back_populates="posts",

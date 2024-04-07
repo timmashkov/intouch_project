@@ -11,3 +11,13 @@ class ProfileNotFound(BaseAPIException):
 class ProfileAlreadyExist(BaseAPIException):
     status_code = status.HTTP_400_BAD_REQUEST
     message = "Profile already exist"
+
+
+class FriendNotFound(BaseAPIException):
+    status_code = status.HTTP_404_NOT_FOUND
+    message = "Friend not found"
+
+
+class FriendAlreadyExist(BaseAPIException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    message = "Friend already exist"

@@ -3,6 +3,7 @@ from typing import Any
 from fastapi import Depends
 from sqlalchemy import select, insert, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
 
 from intouch_profile.src.domain.profile.schema import (
     GetProfileById,
@@ -11,6 +12,7 @@ from intouch_profile.src.domain.profile.schema import (
     GetProfileByLastName,
     CreateProfile,
     UpdateProfile,
+    FriendSchema,
 )
 from intouch_profile.src.infrastructure.database.models import Profile
 from intouch_profile.src.infrastructure.database.connector import tempest
@@ -117,3 +119,33 @@ class ProfileDataManagerRepository:
         await self.session.commit()
         result = answer.mappings().first()
         return result
+
+    async def add_friends(self, cmd: FriendSchema) -> dict[str:str]:
+        query_profile = (
+            select(self.model)
+            .options(joinedload(self.model.friends))
+            .where(self.model.id == cmd.profile_id)
+        )
+        query_friend = select(self.model).where(self.model.id == cmd.friend_id)
+        answer_profile = await self.session.execute(query_profile)
+        answer_friend = await self.session.execute(query_friend)
+        profile = answer_profile.scalars().first()
+        friend = answer_friend.scalars().first()
+        profile.friends.append(friend)
+        await self.session.commit()
+        return {"message": "Friend has been added"}
+
+    async def delete_friends(self, cmd: FriendSchema) -> dict[str:str]:
+        query_profile = (
+            select(self.model)
+            .options(joinedload(self.model.friends))
+            .where(self.model.id == cmd.profile_id)
+        )
+        query_friend = select(self.model).where(self.model.id == cmd.friend_id)
+        answer_profile = await self.session.execute(query_profile)
+        answer_friend = await self.session.execute(query_friend)
+        profile = answer_profile.scalars().first()
+        friend = answer_friend.scalars().first()
+        profile.friends.remove(friend)
+        await self.session.commit()
+        return {"message": "Friend has been removed"}
