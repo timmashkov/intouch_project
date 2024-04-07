@@ -1,8 +1,7 @@
-import uuid
 from datetime import datetime
 
-from sqlalchemy import String, Text, Boolean, func, UUID
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import String, Text, Boolean, func, UUID, Integer
+from sqlalchemy.orm import Mapped, mapped_column, column_property, relationship
 
 from .base import Base
 
@@ -19,10 +18,23 @@ class Profile(Base):
     occupation: Mapped[str] = mapped_column(String(30), unique=False, nullable=True)
     status: Mapped[str] = mapped_column(Text, unique=False, nullable=True)
     bio: Mapped[str] = mapped_column(Text, unique=False, nullable=True)
-    is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    #  From intouch_auth microservice
+    email: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
+    age: Mapped[int] = mapped_column(Integer, unique=False, nullable=False)
+    phone_number: Mapped[str] = mapped_column(String(11), unique=True, nullable=False)
     user_id: Mapped[UUID] = mapped_column(
         UUID(as_uuid=True), unique=True, nullable=False
     )
+    #
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         server_default=func.now(), default=datetime.now
+    )
+    timeframe = column_property(func.now() - created_at)
+
+    friends: Mapped[list["Profile"]] = relationship(
+        "Profile",
+        secondary="friend",
+        primaryjoin="Profile.id==Friend.profile_id",
+        secondaryjoin="Profile.id==Friend.friend_id",
     )

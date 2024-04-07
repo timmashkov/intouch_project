@@ -58,8 +58,8 @@ class UserDataManagerService:
             )
             answer = await self.repository.create_user(cmd=data)
             # sending User.id to rabbit
-            print(answer["id"])
-            await mq_handler.send_message("create_user", answer["id"])
+            print(answer)
+            await mq_handler.send_message("create_user", answer)
             # trigger for creation Profile table in another microservice
             # await mq_rpc.call("registration")
             return answer
