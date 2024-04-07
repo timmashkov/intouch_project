@@ -1,9 +1,13 @@
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from sqlalchemy import String, Text, Boolean, func, UUID, Integer
 from sqlalchemy.orm import Mapped, mapped_column, column_property, relationship
 
 from .base import Base
+
+if TYPE_CHECKING:
+    from .post import Post
 
 
 class Profile(Base):
@@ -37,4 +41,9 @@ class Profile(Base):
         secondary="friend",
         primaryjoin="Profile.id==Friend.profile_id",
         secondaryjoin="Profile.id==Friend.friend_id",
+    )
+
+    posts: Mapped[list["Post"]] = relationship(
+        "Post",
+        back_populates="author"
     )
