@@ -1,5 +1,6 @@
 from fastapi import Depends
 
+from intouch_profile.src.infrastructure.broker.kafka_handler import kafka_producer
 from intouch_profile.src.infrastructure.exceptions.profile_exceptions import (
     ProfileAlreadyExist,
     ProfileNotFound,
@@ -96,4 +97,5 @@ class ProfileDataManagerService:
 
     async def delete_profile(self, cmd: GetProfileById) -> ProfileReturn:
         answer = await self.repository.delete_profile(cmd=cmd)
+        await kafka_producer.publish_message("delete_user", answer)
         return answer

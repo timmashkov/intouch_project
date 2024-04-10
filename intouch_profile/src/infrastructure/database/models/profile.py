@@ -1,13 +1,33 @@
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import String, Text, Boolean, func, UUID, Integer
+from sqlalchemy import (
+    String,
+    Text,
+    Boolean,
+    func,
+    UUID,
+    Integer,
+    UniqueConstraint,
+    ForeignKey,
+)
 from sqlalchemy.orm import Mapped, mapped_column, column_property, relationship
 
 from .base import Base
 
 if TYPE_CHECKING:
     from .post import Post
+
+
+class Friend(Base):
+    __tablename__ = "friend"
+    __table_args__ = (
+        UniqueConstraint("profile_id", "friend_id", name="idx_unique_profile_friend"),
+        {"extend_existing": True},
+    )
+
+    profile_id: Mapped[UUID] = mapped_column(ForeignKey("profile.id"))
+    friend_id: Mapped[UUID] = mapped_column(ForeignKey("profile.id"))
 
 
 class Profile(Base):

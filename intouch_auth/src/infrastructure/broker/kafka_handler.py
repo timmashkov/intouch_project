@@ -1,6 +1,6 @@
 import json
 import pickle
-from typing import Any
+from typing import Any, Callable
 from uuid import UUID
 
 from aiokafka import AIOKafkaProducer, AIOKafkaConsumer
@@ -58,20 +58,10 @@ class KafkaConsumer(DataHandler):
     async def subscribe_to_topic(self):
         await self.consumer.subscribe(self.topics)
 
-    async def poll_messages(self):
+    async def poll_messages(self, func: Callable):
         async for message in self.consumer:
-            print(
-                "consumed: ",
-                await self.deserialize_data(message.topic),
-                await self.deserialize_data(message.partition),
-                await self.deserialize_data(message.offset),
-                await self.deserialize_data(message.key),
-                await self.deserialize_data(message.value),
-                await self.deserialize_data(message.timestamp),
-            )
-            yield await self.deserialize_data(message.key), await self.deserialize_data(
-                message.value
-            )
+            print(f"consumed:{await self.deserialize_data(message.value)}")
+            await func(await self.deserialize_data(message.value))
 
 
 kafka_producer = KafkaProducer(

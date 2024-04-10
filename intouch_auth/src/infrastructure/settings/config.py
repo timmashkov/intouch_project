@@ -24,6 +24,7 @@ class AuthConfig(BaseSettings):
     KAFKA_HOST: str
     KAFKA_PORT: int
     TOPIC_REG: str
+    TOPIC_DEL: str
 
     @property
     def kafka_url(self) -> str:
@@ -31,7 +32,7 @@ class AuthConfig(BaseSettings):
 
     @property
     def topics(self) -> list:
-        return [self.TOPIC_REG]
+        return [self.TOPIC_REG, self.TOPIC_DEL]
 
     # Rabbit config
     RABBIT_NAME: str

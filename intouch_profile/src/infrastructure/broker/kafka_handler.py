@@ -1,6 +1,5 @@
-import json
 import pickle
-from typing import Any
+from typing import Any, Callable
 
 from aiokafka import AIOKafkaProducer, AIOKafkaConsumer
 
@@ -33,11 +32,10 @@ class AIOProducer(DataDumper):
         await self.producer.stop()
 
     async def publish_message(self, topic: str, message: Any):
-        if topic in self.topics:
-            await self.producer.send_and_wait(
-                topic=topic, value=await self.serialize_data(message)
-            )
-        raise NameError("Wrong topic name")
+        await self.producer.send_and_wait(
+            topic=topic, value=await self.serialize_data(message)
+        )
+        print(f"{message} has been sent")
 
 
 class AIOConsumer(DataDumper):
@@ -63,9 +61,10 @@ class AIOConsumer(DataDumper):
     async def subscribe_to_topic(self):
         await self.consumer.subscribe(self.topics)
 
-    async def poll_messages(self):
+    async def poll_messages(self, func: Callable):
         async for message in self.consumer:
             print(f"consumed:{await self.deserialize_data(message.value)}")
+            await func(await self.deserialize_data(message.value))
 
 
 kafka_producer = AIOProducer(

@@ -1,14 +1,10 @@
-import pickle
-
-from aio_pika.abc import AbstractIncomingMessage
 from sqlalchemy import insert
 
 from intouch_profile.src.infrastructure.database.models import Profile
 from intouch_profile.src.infrastructure.database.connector import tempest
 
 
-async def create_profile_hidden(message: AbstractIncomingMessage):
-    data = dict(pickle.loads(message.body))
+async def create_profile_hidden(data):
     async with tempest.engine.connect() as session:
         stmt = (
             insert(Profile)

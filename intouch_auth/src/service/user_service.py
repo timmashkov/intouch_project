@@ -10,7 +10,7 @@ from domain.user.schema import (
     CreateUser,
     UpdateUser,
 )
-from infrastructure.broker.rabbit_handler import mq_rpc, mq_handler
+from infrastructure.broker.kafka_handler import kafka_producer
 from infrastructure.database.models import User
 from infrastructure.exceptions.user_exceptions import UserNotFound, UserAlreadyExist
 from service.auth_handler import AuthHandler
@@ -57,11 +57,7 @@ class UserDataManagerService:
                 age=cmd.age,
             )
             answer = await self.repository.create_user(cmd=data)
-            # sending User.id to rabbit
-            print(answer)
-            await mq_handler.send_message("create_user", answer)
-            # trigger for creation Profile table in another microservice
-            # await mq_rpc.call("registration")
+            await kafka_producer.publish_message("registration", answer)
             return answer
         except (UniqueViolationError, IntegrityError):
             raise UserAlreadyExist

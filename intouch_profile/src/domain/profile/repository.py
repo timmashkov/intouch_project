@@ -113,6 +113,7 @@ class ProfileDataManagerRepository:
                 self.model.status,
                 self.model.created_at,
                 self.model.is_active,
+                self.model.user_id,
             )
         )
         answer = await self.session.execute(stmt)

@@ -60,7 +60,7 @@ async def upd_profile(
     return await repository.update_profile(cmd=cmd, data=GetProfileById(id=profile_id))
 
 
-@profile_router.delete("/del/{profile_id}", response_model=ProfileReturn)
+@profile_router.delete("/del/{profile_id}", response_model=None)
 async def del_profile(
     profile_id: UUID,
     repository: ProfileDataManagerService = Depends(ProfileDataManagerService),
